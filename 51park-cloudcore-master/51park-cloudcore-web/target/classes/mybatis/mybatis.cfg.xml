@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD  Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+<configuration>  
+<!-- <settings>  
+        <setting name="logPrefix" value="dao."/>  
+</settings>  --> 
+	<!-- 类的别名，定义别名后使用时不需要一大串包名的类全名 -->
+    <typeAliases>
+		<!-- wu -->
+
+      	
+      	
+      	
+      	<!-- wang -->
+        <typeAlias type="com.park.cloudcore.domain.order.OrderInfoDomain" alias="orderInfo"/>
+        <typeAlias type="com.park.cloudcore.domain.order.OrderPayRecordDomain" alias="orderPayRecord"/>
+        <typeAlias type="com.park.cloudcore.domain.order.OrderEnExRecordDomain" alias="orderEnExRecord"/>
+        <typeAlias type="com.park.cloudcore.domain.order.OrderModifyRecordDomain" alias="orderModifyRecord"/>
+        <typeAlias type="com.park.cloudcore.domain.discount.DiscountDomain" alias="discount"/>
+	   
+      	<!-- fang -->
+      
+      
+      	<!-- hua -->
+
+    </typeAliases>
+</configuration>

@@ -1,0 +1,65 @@
+package com.park.cloudcore.service.aop;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.park.base.common.RSATools;
+import com.park.cloudcore.properites.KeysConfig;
+import com.park.cloudcore.properites.Spring;
+
+/**
+ * 记录所有接口被请求时的参数和返回结果
+ *
+ * @author fangct 20170705
+ */
+@Aspect
+@Component
+public class LogServiceAop {
+
+    private static final Logger logger = LoggerFactory.getLogger(LogServiceAop.class);
+
+    /**
+     * 切面：controller层的任意方法和参数
+     */
+    @Pointcut("execution(* com.park.cloudcore.controller..*.*(..))")
+    public void log() {
+    }
+
+    @AfterReturning(value = "log()", returning = "returnValue")
+    public void log(JoinPoint joinPoint, Object returnValue) throws Throwable {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
+        try {
+
+            //从request请求中获取参数
+            String params = request.getParameter("params");
+            if (params == null) {
+                return;
+            }
+            // 请求URL
+            String url = request.getRequestURL().toString();
+
+            String private_key = "";
+            //获取公私钥
+            KeysConfig keysConfig = Spring.getBean("keysConfig");
+            private_key = keysConfig.getPrivateKey();
+            String newParams = RSATools.decrypt(params, private_key);
+            logger.info("请求的URL:{} , 参数:{}, 返回结果:{}", url, newParams, returnValue.toString());
+
+        } catch (Exception e) {
+            //记录本地异常日志
+            logger.error("=======接口调用记录Log异常========");
+            logger.error("请求的URL:{}", request.getRequestURL());
+            logger.error("异常方法:{}异常代码:{}异常信息:{}", joinPoint.getTarget().getClass().getName() + joinPoint.getSignature().getName(), e.getClass().getName(), e.getMessage());
+        }
+    }
+}

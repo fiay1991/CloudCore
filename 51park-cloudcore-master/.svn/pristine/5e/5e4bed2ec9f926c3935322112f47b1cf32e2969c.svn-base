@@ -1,0 +1,59 @@
+package com.park.cloudcore.dao.order;
+
+import com.park.cloudcore.domain.order.OrderInfoDomain;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 此Dao用作对cp_order_info表的操作
+ * @author fangct on 20171129
+ *
+ */
+@Repository(value="orderInfoDao")
+public interface OrderInfoDao {
+	
+    /**
+     * 订单表插入数据
+     * @param orderInfo
+     * @return
+     */
+	public int insertOrderInfo(OrderInfoDomain orderInfo);
+
+    /**
+     * 订单表修改数据
+     * @param orderInfo
+     * @return
+     */
+    public int updateOrderInfo(OrderInfoDomain orderInfo);
+
+    /**
+     * 订单表查询数据
+     * @param orderInfo
+     * @return
+     */
+    public OrderInfoDomain selectOrderInfo(OrderInfoDomain orderInfo);
+
+    /**
+     * 订单表查询数据列表
+     * @param paramMap
+     * @return
+     */
+    public List<OrderInfoDomain> selectOrderInfos(Map<String, String> paramMap);
+
+    /**
+     * 订单表查询数据列表
+     * @param orderInfo
+     * @return
+     */
+    public List<OrderInfoDomain> selectOrdersInfoByCarinfo(OrderInfoDomain orderInfo);
+
+    /**
+     * 订单表查询订单数量
+     * @param paramMap
+     * @return
+     */
+    public int selectOrderCount(Map<String, String> paramMap);
+    
+}

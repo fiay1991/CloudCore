@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.park.cloudcore.dao.order.OrderEnExRecordDao">
+
+    <select id="selectOrderEnExRecords" resultType="orderEnExRecord">
+        SELECT id, record_type recordType, order_num orderNum, 
+            card_id cardId, ticket_id ticketId, type, park_id parkId, 
+            device_type deviceType, enter_time enterTime, exit_time exitTime, 
+            plate_number plateNumber, car_type carType, 
+            car_brand carBrand, car_color carColor, enter_name enterName, 
+            exit_time exitTime, image, DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+        FROM cp_order_enex_record 
+        <where>
+            <if test="recordType != null and recordType != ''">AND record_type=#{recordType}</if>
+            <if test="orderNum != null and orderNum != ''">AND order_num=#{orderNum}</if>
+            <if test="cardId != null and cardId != ''">AND card_id=#{cardId}</if>
+            <if test="ticketId != null and ticketId != ''">AND ticket_id=#{ticketId}</if>
+            <if test="type != null and type != ''">AND type=#{type}</if>
+            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
+            <if test="deviceType != null and deviceType != ''">AND device_type=#{deviceType}</if>
+            <if test="enterTimeStart != null and enterTimeStart != ''">AND enter_time&gt;=#{enterTimeStart}</if>
+            <if test="enterTimeEnd != null and enterTimeEnd != ''">AND enter_time&lt;#{enterTimeEnd}</if>
+            <if test="exitTimeStart != null and exitTimeStart != ''">AND exit_time&gt;=#{exitTimeStart}</if>
+            <if test="exitTimeEnd != null and exitTimeEnd != ''">AND exit_time&lt;#{exitTimeEnd}</if>
+            <if test="plateNumber != null and plateNumber != ''">AND plate_number=#{plateNumber}</if>
+            <if test="carType != null and carType != ''">AND car_type=#{carType}</if>
+        </where>
+    </select>
+
+	<insert id="insertOrderEnExRecord">
+		INSERT INTO cp_order_enex_record(record_type, order_num, park_id, device_type
+			<if test="cardId != null and cardId != ''">,card_id</if>
+			<if test="ticketId != null and ticketId != ''">,ticket_id</if>
+			<if test="type != null and type != ''">,type</if>
+			<if test="enterTime != null and enterTime != ''">,enter_time</if>
+			<if test="exitTime != null and exitTime != ''">,exit_time</if>
+			<if test="plateNumber != null and plateNumber != ''">,plate_number</if>
+			<if test="carType != null and carType != ''">,car_type</if>
+			<if test="carBrand != null and carBrand != ''">,car_brand</if>
+			<if test="carColor != null and carColor != ''">,car_color</if>
+			<if test="enterName != null and enterName != ''">,enter_name</if>
+			<if test="exitName != null and exitName != ''">,exit_name</if>
+			<if test="image != null and image != ''">,image</if>
+		) VALUES(#{recordType},#{orderNum},#{parkId},#{deviceType}
+            <if test="cardId != null and cardId != ''">,#{cardId}</if>
+            <if test="ticketId != null and ticketId != ''">,#{ticketId}</if>
+            <if test="type != null and type != ''">,#{type}</if>
+            <if test="enterTime != null and enterTime != ''">,#{enterTime}</if>
+            <if test="exitTime != null and exitTime != ''">,#{exitTime}</if>
+            <if test="plateNumber != null and plateNumber != ''">,#{plateNumber}</if>
+            <if test="carType != null and carType != ''">,#{carType}</if>
+            <if test="carBrand != null and carBrand != ''">,#{carBrand}</if>
+            <if test="carColor != null and carColor != ''">,#{carColor}</if>
+            <if test="enterName != null and enterName != ''">,#{enterName}</if>
+            <if test="exitName != null and exitName != ''">,#{exitName}</if>
+            <if test="image != null and image != ''">,#{image}</if>
+		)
+	</insert>
+	
+	<update id="updateOrderEnExRecord">
+	   UPDATE cp_order_enex_record 
+       <set>
+          <if test="plateNumber != null and plateNumber != ''">plate_number = #{plateNumber},</if>
+          <if test="carType != null and carType != ''">car_type = #{carType},</if>
+           <if test="type != null and type != ''">type = #{type},</if>
+          <if test="carBrand != null and carBrand != ''">car_brand = #{carBrand},</if>
+          <if test="carColor != null and carColor != ''">car_color = #{carColor},</if>
+          <if test="userAccount != null and userAccount != ''">user_account = #{userAccount},</if>
+       </set>
+       WHERE order_num = #{orderNum} 
+       AND park_id = #{parkId}
+	</update>
+    
+</mapper>

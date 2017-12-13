@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.park.cloudcore.dao.order.OrderDao">
+
+    <select id="selectSumTrade" resultType="map">
+        SELECT park_id parkId, Count(*) totalCount, SUM(pay.cost_before) totalCostBefore,
+            SUM(pay.cost_after) totalCostAfter, SUM(pay.discount_amount) totalDiscount 
+		FROM cp_order_pay_record pay 
+		WHERE park_id = #{parkId}
+		<if test="payStatus != null and payStatus != ''"> AND pay.pay_status=#{payStatus}</if>
+		<if test="payTimeStart != null and payTimeStart != ''"> AND pay.pay_time&gt;=#{payTimeStart}</if>
+		<if test="payTimeEnd != null and payTimeEnd != ''"> AND pay.pay_time&lt;#{payTimeEnd}</if>
+    </select>
+    
+</mapper>

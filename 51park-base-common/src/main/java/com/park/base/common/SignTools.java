@@ -1,0 +1,386 @@
+package com.park.base.common;
+
+import com.park.base.common.constants.ProductConstants;
+import com.park.base.common.constants.SignKeyConstants;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.*;
+
+
+public class SignTools{
+
+public static final  String DEFAULT_ENC_NAME="HmacSHA256";
+	
+	public  static  Logger logger =LoggerFactory.getLogger(SignTools.class);
+	/**
+	 * 加密
+	 * @param strSrc 要加密的字符串
+	 * @param key 加密类型 （加密算法有MD5,SHA-1,SHA-256等  默认为SHA-256）
+	 * @return
+	 */
+	public static String encrypt(String strSrc, String key){
+		String result ="";
+		if (null ==strSrc || "".equals(strSrc)) {  
+            return result;  
+        } 
+		try {
+			byte[] bytes = strSrc.getBytes();
+			result= bytes2Hex(encryptHMAC(bytes,key));
+		} catch (Exception e) {
+			logger.error("加密异常 **" +e);
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	public static String bytes2Hex(byte[] bts) {
+        String des = "";
+        String tmp = null;
+        for (int i = 0; i < bts.length; i++) {
+            tmp = (Integer.toHexString(bts[i] & 0xFF));
+            if (tmp.length() == 1) {
+                des += "0";
+            }
+            des += tmp;
+        }
+        return des;
+    }
+	/**
+	 * HMAC加密
+	 * @param data
+	 * @param key
+	 * @return
+	 * @throws Exception
+	 */
+	public static byte[] encryptHMAC(byte[] data, String key) throws Exception {
+		SecretKey secretKey = new SecretKeySpec(key.getBytes(), DEFAULT_ENC_NAME);
+		Mac mac = Mac.getInstance(secretKey.getAlgorithm());
+		mac.init(secretKey);
+		return mac.doFinal(data);
+	}
+	
+	/**
+	 * 签名校验
+	 * @param request
+	 * @return
+	 */
+    public static boolean verifySign(HttpServletRequest request){
+    	String time= request.getHeader("Timestamp");
+		String authorization=request.getHeader("Authorization");
+		String projectid=request.getHeader("Projectid");
+		if (!verifyParams(time, authorization, projectid)) {
+			return false;
+		}
+		if (!verifyTime(time)) {
+			logger.info("请求超时..."+request.getRequestURL().toString());
+			return false;
+		}
+		String params =request.getParameter("params");
+		return verify(authorization, params, time, request.getRequestURL().toString(), SignKeyConstants.keyMap.get(projectid),projectid);
+		
+    }
+    
+    /**
+	 * 签名校验 --针对C端
+	 * @param request
+	 * @return
+	 */
+    public static boolean verifySignToken(HttpServletRequest request,String token){
+    	String time= request.getHeader("Timestamp");
+		String authorization=request.getHeader("Authorization");
+		String projectid=request.getHeader("Projectid");
+		if (!verifyParams(time,authorization, projectid) && verifyParams(token)) {
+			return false;
+		}
+		if (!verifyTime(time)) {
+    		logger.info("请求超时..."+request.getRequestURL().toString());
+			return false;
+		}
+		String params =request.getParameter("params");
+		return verify(authorization, params, time, request.getRequestURL().toString(),token,projectid);
+    }
+    
+    /**
+   	 * 签名校验，针对PHP请求
+   	 * @param request
+   	 * @return
+   	 */
+       public static boolean verifyPHPSign(HttpServletRequest request,String parkkey){
+       	String time= request.getHeader("Timestamp");
+   		String authorization=request.getHeader("Authorization");
+   		if (!StringUtils.isNotBlank(time) && StringUtils.isNotBlank(authorization) ){
+       		return false;
+       	}
+   		Long timeL = Long.parseLong(time);
+   		if (!verifyTime(""+timeL)) {
+   			logger.info("请求超时..."+request.getRequestURL().toString());
+   			return false;
+   		}
+   		String params =request.getParameter("params");
+   		return verifyPHP(authorization, params, time, request.getRequestURL().toString(),parkkey);
+   		
+       }
+       
+    /**
+     * 创建加密码（时间戳+产品名+电话号码）
+     * @param phone 电话号码
+     * @return token 加密码
+     */
+    public static String createToken(String phone){
+    	String token = "";
+    	if(ToolsUtil.isNotNull(phone)){
+    		try {
+    			String time = DateTools.nowDate();//当前时间戳
+    			String product = ProductConstants.PRODUCT_SAAS;
+    			StringBuffer params = new StringBuffer(time).append(product)
+    					.append(phone);
+    			token = MD5encryptTool.getMD5(params.toString());
+			} catch (Exception e) {
+				logger.error("***获取token错误"+e);
+			}
+    		
+    	}
+    	return token;
+    }
+    /** 
+     * 校验heard中的参数是否为空
+     * @return
+     */
+    public static boolean verifyParams(String token){
+    	if (StringUtils.isNotBlank(token)){
+    		return true;
+    	}else {
+    		logger.info("heard 参数错误，{token="+token+"}");
+			return false;
+		}
+    }
+    
+    /** 
+     * 校验heard中的时间是否超时（超过五分钟的请求为无效请求）
+     * @return
+     */
+    public static boolean verifyTime(String time){
+    	long timestamp =0;
+    	long currentTime=System.currentTimeMillis()/1000;
+    	if (time.contains(".")) {/** ios 传入的时间参数 样例（1492672986.000000 ） 故需要处理*/
+			time =time.substring(0,time.indexOf("."));
+			timestamp =Long.parseLong(time);
+		}else {
+			timestamp =Long.parseLong(time);
+		}
+    	long interval =DateTools.time_interval(timestamp, currentTime);
+    	if (interval>5) { 
+    		logger.error("** 请求时间超时，Timestamp={},currentTime={},时间差为: "+interval,timestamp,currentTime);
+			return false;
+		}else {
+			return true;
+		}
+    }
+    /** 
+     * 校验heard中的参数是否为空
+     * @return
+     */
+    public static boolean verifyParams(String time,String authorization,String projectid){
+    	if (StringUtils.isNotBlank(time) && StringUtils.isNotBlank(authorization) && StringUtils.isNotBlank(projectid)){
+    		return true;
+    	}else {
+    		logger.info("heard 参数错误，{Timestamp="+time+",Authorization="+authorization+",Projectid="+projectid+"}");
+			return false;
+		}
+    }
+    public static boolean verify(String authorization,String params,String time,String url,String key,String projectid) {
+    	if (StringUtils.isBlank(params)) {
+			logger.info("params 参数为空, Projectid={},url={}",projectid,url);
+			return false;
+		}
+    	try {
+    		Map<String, String> map=DataChangeTools.json2Map(params);
+    		String linkparams=DataChangeTools.createLinkString(map);
+    		String checkvalue=SignTools.encrypt(time+url+"?"+linkparams, key);
+    		if (checkvalue.equals(authorization)) {
+				return true;
+			}else {
+				logger.error("** 签名校验不一致，Authorization={}，checkvalue={},** 加密之前的字符串:"+time+url+"?"+linkparams+"访问地址："+url,authorization,checkvalue);
+				return false;
+			}
+    	} catch (Exception e) {
+			logger.error("** 签名校验异常：" +e);
+			return false;
+		}
+    }
+   
+    /**
+     * 验证PHP请求
+     * @param authorization
+     * @param params
+     * @param time
+     * @param url
+     * @param key
+     * @return
+     */
+    public static boolean verifyPHP(String authorization,String params,String time,String url,String key) {
+    	if (StringUtils.isBlank(params)) {
+			logger.info("params 参数为空, parkkey={},url={}",key,url);
+			return false;
+		}
+    	try {
+    		Map<String, String> map=DataChangeTools.json2Map(params);
+    		String linkparams=DataChangeTools.createLinkString(map);
+    		String checkvalue=SignTools.encrypt(time+url+"?"+linkparams+key, key);
+    		if (checkvalue.equals(authorization)) {
+				return true;
+			}else {
+				logger.error("** 签名校验不一致，Authorization={}，checkvalue={},** 加密之前的字符串:"+time+url+"?"+linkparams+"访问地址："+url,authorization,checkvalue);
+				return false;
+			}
+    	} catch (Exception e) {
+			logger.error("** 签名校验异常：" +e);
+			return false;
+		}
+    }
+    /**
+     * 生成header对象
+     */
+    public static Map<String, String> getHeaders(String params,String url,String projectId){  
+	    String time = "" + DateTools.phpnowDate();
+		Map<String, String> headers = new HashMap<String, String>(); 
+		
+		Map<String, String> map=DataChangeTools.json2Map(params);
+		String linkparams=DataChangeTools.createLinkString(map);
+		String authorization=SignTools.encrypt(time+url+"?"+linkparams, SignKeyConstants.keyMap.get(projectId));
+		headers.put("Timestamp",time);  
+		headers.put("Authorization",authorization);  
+		headers.put("Projectid",projectId);  
+		return headers;  
+	}
+    /**
+     * 生成PHP规则的header对象
+     */
+    public static Map<String, String> getPHPHeaders(String params,String requestURL,String key){  
+		Map<String, String> headers = new HashMap<String, String>(); 
+		
+		Map<String, String> map=DataChangeTools.json2Map(params);
+		String linkparams=DataChangeTools.createLinkString(map);
+		String time = DateTools.nowDate();
+		long timestamp = Long.parseLong(time)/1000;
+		headers.put("Timestamp",""+timestamp);
+		headers.put("Authorization", SignTools.encrypt(timestamp+requestURL+"?"+linkparams+key,
+				key));
+		
+		System.out.println(timestamp+requestURL+"?"+linkparams+key);
+		return headers;  
+	}
+    /**
+	 * 校验泊链发过来的MD5值
+	 * 
+	 * @param json
+	 * @return
+	 */
+	public static boolean checkJson(String json) {
+		if (null == json) {
+			return false;
+		}
+		try {
+			System.out.println("json="+json);
+			logger.info("json="+json);
+			Map<String, String> map = DataChangeTools.json2Map(json);
+			// 按照ascii字典进行从大到小的排序
+			Collection<String> keyset = map.keySet();
+			List<String> list = new ArrayList<String>(keyset);
+			java.util.Collections.sort(list);
+			String sign = null;
+			StringBuffer stringBuffer = new StringBuffer();
+			for (int i = 0; i < list.size(); i++) {
+				String key = list.get(i);
+				String value = map.get(key).toString();
+				if (key.equals("sign")) {
+					sign = value;
+				} else {
+					stringBuffer.append("&" + key + "=" + value);
+				}
+			}
+			// 截取字符串并进行MD5的校验
+			String md5 = null;
+			try {
+				String string = stringBuffer.substring(stringBuffer.indexOf("&") + 1) + "key=C9D76F91791B2B48";
+				md5 = MD5encryptTool.getMD5(string);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (md5.equals(sign)) {
+				return true;
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+    
+	/**
+	 * http提交参数转为Map
+	 * 
+	 * @param params
+	 * @return Map<String, String>
+	 * @throws UnsupportedEncodingException 
+	 */
+	public static Map<String, String> stringToMap(String params) throws UnsupportedEncodingException {
+		Map<String, String> map = new HashMap<String, String>();
+		if (params != null) {
+			String param[] = params.split("&");
+			for (int i = 0; i < param.length; i++) {
+				String pString =  URLDecoder.decode(param[i], "utf-8");
+				String p[] = pString.split("=");
+				if (p != null && p.length == 2) {
+					String key = p[0];//参数名转数据库字段名
+					if(key!=null&&!"".equals(key)){
+						if(key.equals("gps")&&p[1].indexOf(",")!=-1){//上传的经纬度是一个字段，用逗号隔开
+							String vs []= p[1].split(",");
+							if(vs.length==2){
+								map.put("longitude",vs[0]);
+								map.put("latitude", vs[1]);
+							}
+						}else {
+							map.put(key.toLowerCase(), p[1]);
+						}
+					}
+				}
+				}
+			}
+		return map;
+	}
+	public static boolean checkMD5(String params){
+			try {
+				Map<String, String> paramMap;
+				paramMap = DataChangeTools.json2Map(params);
+				String sign = paramMap.get("sign");
+				paramMap.remove("sign");
+				String signStr= DataChangeTools.createLinkString(paramMap)+"key=C9D76F91791B2B48";
+				logger.info("signStr"+signStr);
+				String _sign = MD5encryptTool.getMD5(signStr);
+				logger.info("_sign"+_sign);
+				if(!sign.equals(_sign)){
+					return false;
+				}else {
+					return true;
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+	}
+
+
+
+}

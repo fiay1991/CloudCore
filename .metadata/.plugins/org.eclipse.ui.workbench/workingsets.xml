@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workingSetManager>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1512622241994_1" label="51park-cloudcore" name="51park-cloudcore">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-service" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-domain" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-dao" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-controller" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-web" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/51park-cloudcore-common" type="4"/>
+</workingSet>
+<workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1512619513611_0" label="Window Working Set" name="Aggregate for window 1512619513611"/>
+</workingSetManager>

@@ -1,0 +1,73 @@
+package com.park.cloudcore.controller.order;
+
+import com.park.cloudcore.service.order.OrderInfoService;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * 
+ * @author fangct on 20171129
+ *
+ */
+@Controller
+@RequestMapping("/orderInfo")
+public class OrderInfoController {
+	
+    @Resource(name="orderInfoServiceImpl")
+    private OrderInfoService orderInfoServiceImpl;
+    
+	@ResponseBody
+	@RequestMapping(value="/add", produces="text/html;charset=UTF-8")
+	public String add(HttpServletRequest request, HttpServletResponse response) {
+		String params = (String) request.getAttribute("params");
+		return orderInfoServiceImpl.addOrderInfo(params);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="/modBase", produces="text/html;charset=UTF-8")
+	public String modbase(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+	    return orderInfoServiceImpl.modOrderInfoBase(params);
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="/modCost", produces="text/html;charset=UTF-8")
+	public String modCost(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+        return orderInfoServiceImpl.modOrderInfoCost(params);
+    }
+	
+	@ResponseBody
+    @RequestMapping(value="/findByOne", produces="text/html;charset=UTF-8")
+	public String findByOne(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+        return orderInfoServiceImpl.findOrderInfo(params);
+    }
+	
+	@ResponseBody
+    @RequestMapping(value="/findsByCarinfo", produces="text/html;charset=UTF-8")
+    public String findsByCarinfo(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+        return orderInfoServiceImpl.findOrderInfosByCarinfo(params);
+    }
+	
+	@ResponseBody
+    @RequestMapping(value="/finds", produces="text/html;charset=UTF-8")
+    public String finds(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+        return orderInfoServiceImpl.findOrderInfos(params);
+    }
+	
+	@ResponseBody
+    @RequestMapping(value="/count", produces="text/html;charset=UTF-8")
+    public String count(HttpServletRequest request, HttpServletResponse response) {
+        String params = (String) request.getAttribute("params");
+        return orderInfoServiceImpl.countOrderInfo(params);
+    }
+	
+}

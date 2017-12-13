@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.park.cloudcore.dao.order.OrderModifyRecordDao">
+
+    <select id="selectOrderModifyRecords" resultType="orderModifyRecord">
+        SELECT id, action, park_id parkId, order_num orderNum, modify_type modifyType, 
+            before_modify beforeModify, after_modify afterModify, old_car_desc oldCarDesc,
+            new_car_desc newCarDesc, modify_time modifyTime,
+            user_account userAccount, DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+        FROM cp_order_modify_record 
+        <where>
+            <if test="action != null and action != ''">AND action=#{action}</if>
+            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
+            <if test="orderNum != null and orderNum != ''">AND order_num=#{orderNum}</if>
+            <if test="modifyTimeStart != null and modifyTimeStart != ''">AND modify_time&gt;=#{modifyTimeStart}</if>
+            <if test="modifyTimeEnd != null and modifyTimeEnd != ''">AND modify_time&lt;#{modifyTimeEnd}</if>
+            <if test="userAccount != null and userAccount != ''">AND user_account=#{userAccount}</if>
+        </where>
+    </select>
+
+	<insert id="insertOrderModifyRecord">
+		INSERT INTO cp_order_modify_record(action, park_id, order_num
+			<if test="modifyType != null and modifyType != ''">,modify_type</if>
+			<if test="beforeModify != null and beforeModify != ''">,before_modify</if>
+			<if test="afterModify != null and afterModify != ''">,after_modify</if>
+			<if test="oldCarDesc != null and oldCarDesc != ''">,old_car_desc</if>
+			<if test="newCarDesc != null and newCarDesc != ''">,new_car_desc</if>
+			<if test="modifyTime != null and modifyTime != ''">,modify_time</if>
+			<if test="userAccount != null and userAccount != ''">,user_account</if>
+		) VALUES(#{action},#{parkId},#{orderNum}
+            <if test="modifyType != null and modifyType != ''">,#{modifyType}</if>
+            <if test="beforeModify != null and beforeModify != ''">,#{beforeModify}</if>
+            <if test="afterModify != null and afterModify != ''">,#{afterModify}</if>
+            <if test="oldCarDesc != null and oldCarDesc != ''">,#{oldCarDesc}</if>
+            <if test="newCarDesc != null and newCarDesc != ''">,#{newCarDesc}</if>
+            <if test="modifyTime != null and modifyTime != ''">,#{modifyTime}</if>
+            <if test="userAccount != null and userAccount != ''">,#{userAccount}</if>
+		)
+	</insert>
+	
+</mapper>
