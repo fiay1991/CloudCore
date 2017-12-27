@@ -1,0 +1,98 @@
+package com.park.cloudcore.service.payment.impl;
+
+import java.math.BigDecimal;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.park.base.common.DataChangeTools;
+import com.park.base.common.HttpTools;
+import com.park.base.common.ResultTools;
+import com.park.base.common.constants.PublicKeyConstants;
+import com.park.cloudcore.common.ValidateParamsTools;
+import com.park.cloudcore.common.constants.Code;
+import com.park.cloudcore.common.constants.ValidateType;
+import com.park.cloudcore.domain.response.ObjectResponse;
+import com.park.cloudcore.properites.URLConfig;
+import com.park.cloudcore.service.payment.PaymentService;
+
+/**
+ * 缴费查询
+ * @author fangct on 20171129
+ *
+ */
+@Repository(value="paymentServiceImpl")
+public class PaymentServiceImpl implements PaymentService {
+    
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    @Autowired
+    private URLConfig uRLConfig;
+
+    public String query(String params) {
+        try {
+            Map<String, String> paramsMap = DataChangeTools.json2Map(params);
+			// 校验参数
+			String[] mustParams = { "parkId","plateNumber","orderNum" };
+			if (!ValidateParamsTools.vaildateParams(paramsMap, mustParams, ValidateType.必传)) {
+				return ResultTools.setResponse(Code.ERROR_400, Code.getName(Code.ERROR_400));
+			}
+            // 放入参数，获取url，发送请求
+//            // 查询订单
+//            String enterOrExit = orderInfoDao.selectOrderEnter4Seek(paramMap);
+//            String serviceStatus = "1";
+//            if(null == enterOrExit || "".equals(enterOrExit)) {
+//                enterOrExit = orderExitDao.selectOrderExit4Seek(paramMap);
+//                serviceStatus = "2";
+//            }
+            String url = uRLConfig.getUrl4PayQuery();
+            String result = HttpTools.pidPost(paramsMap, url, PublicKeyConstants.LocalApi, "CloudCore");
+            logger.info("** 缴费查询, 参数：{}，返回结果：{}", params, result);
+            logger.info("** 缴费查询，返回结果：" + result);
+            if(null == result || "".equals(result)) {
+                logger.info("** 缴费查询 - 返回全空。");
+                return ResultTools.setResponse(Code.ERROR_503, Code.getName(Code.ERROR_503));
+            }
+            ObjectResponse response = DataChangeTools.gson2bean(result, ObjectResponse.class);
+            if(response == null || !response.getCode().equals("200")) {
+                logger.info("** 缴费查询 - 返回非成功值：code=" + response.getCode() + 
+                        "，msg=" + response.getMsg());
+                return ResultTools.setResponse(Code.ERROR_504, Code.getName(Code.ERROR_504));
+            }
+            if(null == response.getData() || response.getData().equals("")) {
+                logger.info("** 缴费查询 - 查询成功，无数据。");
+                return ResultTools.setResponse(Code.ERROR_505, Code.getName(Code.ERROR_505));
+            }
+            String resultStr = DataChangeTools.bean2gson(response.getData());
+            // 整理参数并返回结果
+            Map<String, String> resultMap = DataChangeTools.json2Map(resultStr);
+            BigDecimal payedPrice = new BigDecimal(resultMap.get("payed_price"));
+            BigDecimal unpayPrice = new BigDecimal(resultMap.get("unpay_price"));
+            String status = "";
+            int unpay = unpayPrice.compareTo(new BigDecimal("0"));
+            int payed = payedPrice.compareTo(new BigDecimal("0"));
+            if(unpay <= 0) {
+                status = "1"; // 已缴费
+            }else if(payed <= 0) {
+                status = "2"; // 未缴费
+            }else {
+                status = "3"; // 需补缴
+            }
+            resultMap.put("status", status);
+//            resultMap.put("service_status", serviceStatus);
+            // 下面为测试数据，测试完毕后删除START-----------------
+            resultMap.put("orderid", "");
+            // 上面为测试数据，测试完毕后删除END-------------------
+            logger.info("** 缴费查询 - 缴费查询成功：" + resultMap);
+            return ResultTools.setObjectResponse(Code.SUCCESS, Code.getName(Code.SUCCESS), resultMap);
+        } catch (Exception e) {
+            logger.info("** 缴费查询 - 缴费查询出现异常：" + e.getMessage());
+            e.printStackTrace();
+            return ResultTools.setResponse(Code.ERROR, Code.getName(Code.ERROR));
+        }
+    }
+    
+}

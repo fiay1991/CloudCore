@@ -3,19 +3,19 @@
 
 <mapper namespace="com.park.cloudcore.dao.discount.DiscountDao">
 
-    <select id="selectDiscountIds" resultType="int">
-       SELECT id 
+    <select id="selectDiscountNos" resultType="map">
+       SELECT discount_no discountNo 
        FROM cp_order_discount 
        <where>
            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
            <if test="orderNum != null and orderNum != ''">AND order_num=#{orderNum}</if>
-           <if test="tradeNo != null and tradeNo != ''">AND trade_no=#{tradeNo}</if>
+           <if test="fromTradeNo != null and fromTradeNo != ''">AND trade_no=#{fromTradeNo}</if>
            <if test="oldStatus != null and oldStatus != ''">AND status=#{oldStatus}</if>
        </where>
     </select>
 
     <select id="selectDiscounts" resultType="discount">
-       SELECT id, park_id parkId, order_num orderNum, trade_no tradeNo, 
+       SELECT id, discount_no discountNo, park_id parkId, order_num orderNum, trade_no tradeNo, 
            type type, amount amount, from_type fromType, user_id userId, 
            status status, get_amount getAmount, discount_time discountTime,
           DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
@@ -31,26 +31,34 @@
            <if test="discountTimeStart != null and discountTimeStart != ''">AND discount_time&gt;=#{discountTimeStart}</if>
            <if test="discountTimeEnd != null and discountTimeEnd != ''">AND discount_time&lt;=#{discountTimeEnd}</if>
        </where>
+       ORDER BY discount_time DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
     </select>
 
     <select id="selectDiscount" resultType="discount">
-        SELECT id, park_id parkId, order_num orderNum, trade_no tradeNo,
+        SELECT id, discount_no discountNo,park_id parkId, order_num orderNum, trade_no tradeNo,
         type type, amount amount, from_type fromType, user_id userId,
         status status, get_amount getAmount, discount_time discountTime,
         DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
         FROM cp_order_discount
         <where>
             <if test="id != null and id != ''">AND id=#{id}</if>
+            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
+            <if test="discountNo != null and discountNo != ''">AND discount_no=#{discountNo}</if>
         </where>
     </select>
 
 	<insert id="insertDiscount" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO cp_order_discount(park_id, order_num, type, amount, 
-		    from_type, status, discount_time
+		INSERT INTO cp_order_discount(discount_no, park_id, order_num, type, amount, 
+		    from_type, discount_time
+			<if test="status != null and status != ''">,status</if>
 			<if test="tradeNo != null and tradeNo != ''">,trade_no</if>
 			<if test="userId != null and userId != ''">,user_id</if>
 			<if test="getAmount != null and getAmount != ''">,get_amount</if>
-		) VALUES(#{parkId},#{orderNum},#{type},#{amount},#{fromType},#{status},#{discountTime}
+		) VALUES(#{discountNo}, #{parkId},#{orderNum},#{type},#{amount},#{fromType},#{discountTime}
+            <if test="status != null and status != ''">,#{status}</if>
             <if test="tradeNo != null and tradeNo != ''">,#{tradeNo}</if>
             <if test="userId != null and userId != ''">,#{userId}</if>
             <if test="getAmount != null and getAmount != ''">,#{getAmount}</if>

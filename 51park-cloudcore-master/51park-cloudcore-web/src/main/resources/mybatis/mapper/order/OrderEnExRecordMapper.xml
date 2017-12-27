@@ -26,6 +26,10 @@
             <if test="plateNumber != null and plateNumber != ''">AND plate_number=#{plateNumber}</if>
             <if test="carType != null and carType != ''">AND car_type=#{carType}</if>
         </where>
+        ORDER BY id DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
     </select>
 
 	<insert id="insertOrderEnExRecord">

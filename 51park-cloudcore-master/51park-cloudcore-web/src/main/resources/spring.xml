@@ -22,7 +22,6 @@
 		<property name="locations">
 			<list>
 				<value>classpath:c3p0.properties</value>
-				<value>classpath:KeysConfig.properties</value>
 				<value>classpath:URLConfig.properties</value>
 			</list>
 		</property>

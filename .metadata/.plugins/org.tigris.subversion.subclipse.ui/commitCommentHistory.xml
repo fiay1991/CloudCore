@@ -1,2 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CommitComments></CommitComments>
+<CommitComments>	<CommitComment>测试</CommitComment>
+	<CommitComment>修改parkId传入条件</CommitComment>
+	<CommitComment>增加日志</CommitComment>
+	<CommitComment>修改通过车辆信息获取订单的必传参数、修改pidPost参数</CommitComment>
+</CommitComments>

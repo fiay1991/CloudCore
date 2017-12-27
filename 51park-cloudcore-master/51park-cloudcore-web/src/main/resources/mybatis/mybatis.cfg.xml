@@ -18,6 +18,8 @@
         <typeAlias type="com.park.cloudcore.domain.order.OrderEnExRecordDomain" alias="orderEnExRecord"/>
         <typeAlias type="com.park.cloudcore.domain.order.OrderModifyRecordDomain" alias="orderModifyRecord"/>
         <typeAlias type="com.park.cloudcore.domain.discount.DiscountDomain" alias="discount"/>
+        <typeAlias type="com.park.cloudcore.domain.system.FieldGenerateDomain" alias="FieldGenerateDomain"/>
+        <typeAlias type="com.park.cloudcore.domain.park.ParkInfoDomain" alias="ParkInfoDomain"/>
 	   
       	<!-- fang -->
       

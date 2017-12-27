@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.park.cloudcore.dao.system.FieldGenerateDao">
+
+    <select id="selectByType" resultType="FieldGenerateDomain">
+        SELECT *
+		FROM cp_sys_field_generate 
+		WHERE type = #{value}
+    </select>
+    <update id="updateNew">
+    	UPDATE cp_sys_field_generate
+    	<set>
+    		<if test="part_1 != null and part_1 != ''">part_1 = #{part_1},</if>
+    		<if test="part_2 != null and part_2 != ''">part_2 = #{part_2},</if>
+    		<if test="part_3 != null and part_3 != ''">part_3 = #{part_3}</if>
+    	</set>
+    	WHERE type=#{type}
+    </update>
+    
+</mapper>

@@ -3,126 +3,183 @@
 
 <mapper namespace="com.park.cloudcore.dao.order.OrderInfoDao">
 
-    <select id="selectOrderCount" resultType="int">
-        SELECT COUNT(*)
-        FROM cp_order_info
-        <where>
-            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
-            <if test="enterTimeStart != null and enterTimeStart != ''">AND enter_time&gt;=#{enterTimeStart}</if>
-            <if test="enterTimeEnd != null and enterTimeEnd != ''">AND enter_time&lt;#{enterTimeEnd}</if>
-            <if test="exitTimeStart != null and exitTimeStart != ''">AND exit_time&gt;=#{exitTimeStart}</if>
-            <if test="exitTimeEnd != null and exitTimeEnd != ''">AND exit_time&lt;#{exitTimeEnd}</if>
-            <if test="carType != null and carType != ''">AND car_type=#{carType}</if>
-            <if test="type != null and type != ''">AND type=#{type}</if>
-            <if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
-        </where>
-    </select>
+	<select id="selectOrderCount" resultType="int">
+		SELECT COUNT(*)
+		FROM cp_order_info
+		<where>
+			<if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
+			<if test="enterTimeStart != null and enterTimeStart != ''">AND enter_time&gt;=#{enterTimeStart}</if>
+			<if test="enterTimeEnd != null and enterTimeEnd != ''">AND enter_time&lt;#{enterTimeEnd}</if>
+			<if test="exitTimeStart != null and exitTimeStart != ''">AND exit_time&gt;=#{exitTimeStart}</if>
+			<if test="exitTimeEnd != null and exitTimeEnd != ''">AND exit_time&lt;#{exitTimeEnd}</if>
+			<if test="carType != null and carType != ''">AND car_type=#{carType}</if>
+			<if test="type != null and type != ''">AND type=#{type}</if>
+			<if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
+		</where>
+	</select>
 
-    <select id="selectOrderInfos" resultType="orderInfo">
-        SELECT id, order_num orderNum, park_id parkId, plate_number plateNumber,
-        card_id cardId, ticket_id ticketId, car_type carType, card_owner cardOwner, enter_time enterTime,
-        exit_time exitTime, cost_before costBefore, cost_after costAfter,
-        discount_amount discountAmount, prepay_amount prepayAmount,
-        prepay_time prepayTime, type, car_desc carDesc, service_status serviceStatus,
-        local_order_id localOrderId, DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
-        FROM cp_order_info
-        <where>
-            <if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
-            <if test="enterTimeStart != null and enterTimeStart != ''">AND enter_time&gt;=#{enterTimeStart}</if>
-            <if test="enterTimeEnd != null and enterTimeEnd != ''">AND enter_time&lt;#{enterTimeEnd}</if>
-            <if test="exitTimeStart != null and exitTimeStart != ''">AND exit_time&gt;=#{exitTimeStart}</if>
-            <if test="exitTimeEnd != null and exitTimeEnd != ''">AND exit_time&lt;#{exitTimeEnd}</if>
-            <if test="carType != null and carType != ''">AND car_type=#{carType}</if>
-            <if test="type != null and type != ''">AND type=#{type}</if>
-            <if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
-        </where>
-    </select>
+	<select id="selectOrderInfos" resultType="orderInfo">
+		SELECT id, order_num orderNum, park_id parkId, plate_number
+		plateNumber,
+		card_id cardId, ticket_id ticketId, car_type carType,
+		enter_time enterTime,
+		exit_time exitTime, cost_before costBefore,
+		cost_after costAfter,
+		discount_amount discountAmount, prepay_amount
+		prepayAmount,
+		prepay_time prepayTime, type, car_desc carDesc,
+		service_status
+		serviceStatus,
+		local_order_id localOrderId,
+		DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime,
+		DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+		FROM cp_order_info
+		<where>
+			<if test="parkId != null and parkId != ''">AND park_id=#{parkId}</if>
+			<if test="enterTimeStart != null and enterTimeStart != ''">AND enter_time&gt;=#{enterTimeStart}</if>
+			<if test="enterTimeEnd != null and enterTimeEnd != ''">AND enter_time&lt;#{enterTimeEnd}</if>
+			<if test="exitTimeStart != null and exitTimeStart != ''">AND exit_time&gt;=#{exitTimeStart}</if>
+			<if test="exitTimeEnd != null and exitTimeEnd != ''">AND exit_time&lt;#{exitTimeEnd}</if>
+			<if test="carType != null and carType != ''">AND car_type=#{carType}</if>
+			<if test="type != null and type != ''">AND type=#{type}</if>
+			<if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
+		</where>
+		ORDER BY enter_time DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
+	</select>
 
-    <select id="selectOrderInfo" resultType="orderInfo">
-        SELECT id, order_num orderNum, park_id parkId, plate_number plateNumber,
-        card_id cardId, card_owner cardOwner, ticket_id ticketId, car_type carType, enter_time enterTime,
-        exit_time exitTime, cost_before costBefore, cost_after costAfter,
-        discount_amount discountAmount, prepay_amount prepayAmount,
-        prepay_time prepayTime, type, car_desc carDesc, service_status serviceStatus,
-        local_order_id localOrderId, DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
-        FROM cp_order_info
-        <where>
-            <if test="id != null and id != ''"> AND id=#{id}</if>
-            <if test="orderNum != null and orderNum != ''"> AND order_num=#{orderNum}</if>
-            <if test="localOrderId != null and localOrderId != ''"> AND local_order_id=#{localOrderId}</if>
-        </where>
-    </select>
+	<select id="selectOrderInfo" resultType="orderInfo">
+		SELECT id, order_num orderNum, park_id parkId, plate_number
+		plateNumber,
+		card_id cardId, ticket_id ticketId, car_type carType,
+		enter_time enterTime,
+		exit_time exitTime, cost_before costBefore,
+		cost_after costAfter,
+		discount_amount discountAmount, prepay_amount
+		prepayAmount,
+		prepay_time prepayTime, type, car_desc carDesc,
+		service_status
+		serviceStatus,
+		local_order_id localOrderId,
+		DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime,
+		DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+		FROM cp_order_info
+		<where>
+			<if test="id != null and id != ''"> AND id=#{id}</if>
+			<if test="orderNum != null and orderNum != ''"> AND order_num=#{orderNum}</if>
+			<if test="localOrderId != null and localOrderId != ''"> AND local_order_id=#{localOrderId}</if>
+		</where>
+	</select>
 
-    <select id="selectOrdersInfoByCarinfo" resultType="orderInfo">
-        SELECT id, order_num orderNum, park_id parkId, plate_number plateNumber,
-        card_id cardId, card_owner cardOwner, ticket_id ticketId, car_type carType, enter_time enterTime,
-        exit_time exitTime, cost_before costBefore, cost_after costAfter,
-        discount_amount discountAmount, prepay_amount prepayAmount,
-        prepay_time prepayTime, type, car_desc carDesc, service_status serviceStatus,
-        local_order_id localOrderId, DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime, DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
-        FROM cp_order_info
-        <where>
-            <if test="parkId != null and parkId != ''"> AND park_id=#{parkId}</if>
-            <if test="plateNumber != null and plateNumber != ''"> AND plate_number=#{plateNumber}</if>
-            <if test="cardId != null and cardId != ''"> AND card_id=#{cardId}</if>
-            <if test="ticketId != null and ticketId != ''"> AND ticket_id=#{ticketId}</if>
-            <if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
-        </where>
-        ORDER BY createTime DESC
-    </select>
+	<select id="selectOrdersInfoByCarinfo" resultType="orderInfo">
+		SELECT id, order_num orderNum, park_id parkId, plate_number
+		plateNumber,
+		card_id cardId, ticket_id ticketId, car_type carType,
+		enter_time enterTime,
+		exit_time exitTime, cost_before costBefore,
+		cost_after costAfter,
+		discount_amount discountAmount, prepay_amount
+		prepayAmount,
+		prepay_time prepayTime, type, car_desc carDesc,
+		service_status
+		serviceStatus,
+		local_order_id localOrderId,
+		DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime,
+		DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+		FROM cp_order_info
+		<where>
+			<if test="parkId != null and parkId != '' and parkId != 'NULL' and parkId != 'null'"> AND park_id=#{parkId}</if>
+			<if test="plateNumber != null and plateNumber != ''"> AND plate_number=#{plateNumber}</if>
+			<if test="localOrderId != null and localOrderId != ''"> AND local_order_id=#{localOrderId}</if>
+			<if test="cardId != null and cardId != ''"> AND card_id=#{cardId}</if>
+			<if test="ticketId != null and ticketId != ''"> AND ticket_id=#{ticketId}</if>
+			<if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
+		</where>
+		ORDER BY enter_time DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
+	</select>
+	<select id="fuzzySelect" resultType="orderInfo">
+		SELECT id, order_num orderNum, park_id parkId, plate_number
+		plateNumber,
+		card_id cardId, ticket_id ticketId, car_type carType,
+		enter_time enterTime,
+		exit_time exitTime, cost_before costBefore,
+		cost_after costAfter,
+		discount_amount discountAmount, prepay_amount
+		prepayAmount,
+		prepay_time prepayTime, type, car_desc carDesc,
+		service_status
+		serviceStatus,
+		local_order_id localOrderId,
+		DATE_FORMAT(create_time,'%Y-%m-%d %T') createTime,
+		DATE_FORMAT(update_time,'%Y-%m-%d %T') updateTime
+		FROM cp_order_info
+		<where>
+			<if test="parkId != null and parkId != ''"> AND park_id=#{parkId}</if>
+			<if test="plateNumber != null and plateNumber != ''"> AND plate_number LIKE CONCAT('%',#{plateNumber},'%')</if>
+			<if test="orderNum != null and orderNum != ''"> AND order_num LIKE CONCAT('%',#{orderNum},'%')</if>
+			<if test="serviceStatus != null and serviceStatus != ''">AND service_status=#{serviceStatus}</if>
+		</where>
+		ORDER BY enter_time DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
+	</select>
 
-    <insert id="insertOrderInfo">
-        INSERT INTO cp_order_info(order_num, park_id, enter_time
-        <if test="plateNumber != null and plateNumber != ''">,plate_number</if>
-        <if test="cardId != null and cardId != ''">,card_id</if>
-        <if test="ticketId != null and ticketId != ''">,ticket_id</if>
-        <if test="carType != null and carType != ''">,car_type</if>
-        <if test="cardOwner != null and cardOwner != ''">,card_owner</if>
-        <if test="costBefore != null and costBefore != ''">,cost_before</if>
-        <if test="costAfter != null and costAfter != ''">,cost_after</if>
-        <if test="discountAmount != null and discountAmount != ''">,discount_amount</if>
-        <if test="prepayAmount != null and prepayAmount != ''">,prepay_amount</if>
-        <if test="prepayTime != null and prepayTime != ''">,prepay_time</if>
-        <if test="type != null and type != ''">,type</if>
-        <if test="carDesc != null and carDesc != ''">,car_desc</if>
-        <if test="localOrderId != null and localOrderId != ''">,local_order_id</if>
-        <if test="exitTime != null and exitTime != ''">,exit_time</if>
-        <if test="serviceStatus != null and serviceStatus != ''">,service_status</if>
-        ) VALUES(#{orderNum},#{parkId},#{enterTime}
-        <if test="plateNumber != null and plateNumber != ''">,#{plateNumber}</if>
-        <if test="cardId != null and cardId != ''">,#{cardId}</if>
-        <if test="ticketId != null and ticketId != ''">,#{ticketId}</if>
-        <if test="carType != null and carType != ''">,#{carType}</if>
-        <if test="cardOwner != null and cardOwner != ''">,#{cardOwner}</if>
-        <if test="costBefore != null and costBefore != ''">,#{costBefore}</if>
-        <if test="costAfter != null and costAfter != ''">,#{costAfter}</if>
-        <if test="discountAmount != null and discountAmount != ''">,#{discountAmount}</if>
-        <if test="prepayAmount != null and prepayAmount != ''">,#{prepayAmount}</if>
-        <if test="prepayTime != null and prepayTime != ''">,#{prepayTime}</if>
-        <if test="type != null and type != ''">,#{type}</if>
-        <if test="carDesc != null and carDesc != ''">,#{carDesc}</if>
-        <if test="localOrderId != null and localOrderId != ''">,#{localOrderId}</if>
-        <if test="exitTime != null and exitTime != ''">,#{exitTime}</if>
-        <if test="serviceStatus != null and serviceStatus != ''">,#{serviceStatus}</if>
-        )
-    </insert>
+	<insert id="insertOrderInfo">
+		INSERT INTO cp_order_info(order_num, park_id, enter_time
+		<if test="plateNumber != null and plateNumber != ''">,plate_number</if>
+		<if test="cardId != null and cardId != ''">,card_id</if>
+		<if test="ticketId != null and ticketId != ''">,ticket_id</if>
+		<if test="carType != null and carType != ''">,car_type</if>
+		<if test="costBefore != null and costBefore != ''">,cost_before</if>
+		<if test="costAfter != null and costAfter != ''">,cost_after</if>
+		<if test="discountAmount != null and discountAmount != ''">,discount_amount</if>
+		<if test="prepayAmount != null and prepayAmount != ''">,prepay_amount</if>
+		<if test="prepayTime != null and prepayTime != ''">,prepay_time</if>
+		<if test="type != null and type != ''">,type</if>
+		<if test="carDesc != null and carDesc != ''">,car_desc</if>
+		<if test="localOrderId != null and localOrderId != ''">,local_order_id</if>
+		<if test="exitTime != null and exitTime != ''">,exit_time</if>
+		<if test="serviceStatus != null and serviceStatus != ''">,service_status</if>
+		) VALUES(#{orderNum},#{parkId},#{enterTime}
+		<if test="plateNumber != null and plateNumber != ''">,#{plateNumber}</if>
+		<if test="cardId != null and cardId != ''">,#{cardId}</if>
+		<if test="ticketId != null and ticketId != ''">,#{ticketId}</if>
+		<if test="carType != null and carType != ''">,#{carType}</if>
+		<if test="costBefore != null and costBefore != ''">,#{costBefore}</if>
+		<if test="costAfter != null and costAfter != ''">,#{costAfter}</if>
+		<if test="discountAmount != null and discountAmount != ''">,#{discountAmount}</if>
+		<if test="prepayAmount != null and prepayAmount != ''">,#{prepayAmount}</if>
+		<if test="prepayTime != null and prepayTime != ''">,#{prepayTime}</if>
+		<if test="type != null and type != ''">,#{type}</if>
+		<if test="carDesc != null and carDesc != ''">,#{carDesc}</if>
+		<if test="localOrderId != null and localOrderId != ''">,#{localOrderId}</if>
+		<if test="exitTime != null and exitTime != ''">,#{exitTime}</if>
+		<if test="serviceStatus != null and serviceStatus != ''">,#{serviceStatus}</if>
+		)
+	</insert>
 
-    <update id="updateOrderInfo">
-        UPDATE cp_order_info
-        <set>
-            <if test="plateNumber != null and plateNumber != ''">plate_number = #{plateNumber},</if>
-            <if test="carType != null and carType != ''">car_type = #{carType},</if>
-            <if test="costBefore != null and costBefore != ''">cost_before = #{costBefore},</if>
-            <if test="costAfter != null and costAfter != ''">cost_after = #{costAfter},</if>
-            <if test="discountAmount != null and discountAmount != ''">discount_amount = #{discountAmount},</if>
-            <if test="prepayAmount != null and prepayAmount != ''">prepay_amount = #{prepayAmount},</if>
-            <if test="prepayTime != null and prepayTime != ''">prepay_time = #{prepayTime},</if>
-            <if test="type != null and type != ''">type = #{type},</if>
-            <if test="carDesc != null and carDesc != ''">car_desc = #{carDesc},</if>
-            <if test="serviceStatus != null and serviceStatus != ''">service_status = #{serviceStatus},</if>
-            <if test="exitTime != null and exitTime != ''">exit_time = #{exitTime}</if>
-        </set>
-        WHERE order_num = #{orderNum}
-    </update>
+	<update id="updateOrderInfo">
+		UPDATE cp_order_info
+		<set>
+			<if test="plateNumber != null and plateNumber != ''">plate_number = #{plateNumber},</if>
+			<if test="carType != null and carType != ''">car_type = #{carType},</if>
+			<if test="costBefore != null and costBefore != ''">cost_before = #{costBefore},</if>
+			<if test="costAfter != null and costAfter != ''">cost_after = #{costAfter},</if>
+			<if test="discountAmount != null and discountAmount != ''">discount_amount = #{discountAmount},</if>
+			<if test="prepayAmount != null and prepayAmount != ''">prepay_amount = #{prepayAmount},</if>
+			<if test="prepayTime != null and prepayTime != ''">prepay_time = #{prepayTime},</if>
+			<if test="type != null and type != ''">type = #{type},</if>
+			<if test="carDesc != null and carDesc != ''">car_desc = #{carDesc},</if>
+			<if test="serviceStatus != null and serviceStatus != ''">service_status = #{serviceStatus},</if>
+			<if test="exitTime != null and exitTime != ''">exit_time = #{exitTime}</if>
+		</set>
+		WHERE order_num = #{orderNum}
+	</update>
 
 </mapper>

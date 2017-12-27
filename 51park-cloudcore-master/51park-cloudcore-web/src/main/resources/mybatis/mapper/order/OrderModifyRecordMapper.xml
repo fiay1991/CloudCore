@@ -17,6 +17,10 @@
             <if test="modifyTimeEnd != null and modifyTimeEnd != ''">AND modify_time&lt;#{modifyTimeEnd}</if>
             <if test="userAccount != null and userAccount != ''">AND user_account=#{userAccount}</if>
         </where>
+        ORDER BY modify_time DESC
+		<if test="firstResult != null and perPage != null">
+			LIMIT ${firstResult}, ${perPage}
+		</if>
     </select>
 
 	<insert id="insertOrderModifyRecord">
